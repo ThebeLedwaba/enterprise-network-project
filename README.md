@@ -28,7 +28,7 @@ interface vlan 10
 ```
 
 ## 🔍 Topology Diagram
-📎 Refer to `diagrams/enterprise-topology.png` *(upload your Draw.io diagram)*
+📎The topology diagram can be found under diagrams.
 
 ## 💡 Future Improvements
 - Add NAT configuration examples
