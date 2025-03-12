@@ -1,0 +1,46 @@
+! FIREWALL CONFIGURATION (Detailed)
+hostname FIREWALL
+
+! Outside Interface (Internet-facing)
+interface GigabitEthernet0/0
+  ip address 203.0.113.1 255.255.255.252
+  nameif OUTSIDE
+  security-level 0
+
+! Inside Interface (Internal Network)
+interface GigabitEthernet0/1
+  ip address 192.168.10.254 255.255.255.0
+  nameif INSIDE
+  security-level 100
+
+! DMZ Interface (Public Servers)
+interface GigabitEthernet0/2
+  ip address 192.168.40.1 255.255.255.0
+  nameif DMZ
+  security-level 50
+
+! Access Control Lists (ACLs)
+access-list OUTSIDE-IN extended permit tcp any host 203.0.113.10 eq 80
+access-list OUTSIDE-IN extended permit tcp any host 203.0.113.10 eq 443
+access-list OUTSIDE-IN extended deny ip any any log
+
+access-list INSIDE-OUT extended permit ip 192.168.10.0 255.255.255.0 any
+access-list INSIDE-OUT extended deny ip 192.168.20.0 255.255.255.0 192.168.10.0 255.255.255.0
+access-list INSIDE-OUT extended permit ip any any
+
+! NAT Configuration
+nat (INSIDE,OUTSIDE) dynamic interface
+
+! VPN Configuration (Site-to-Site)
+crypto isakmp policy 10
+  encryption aes
+  hash sha
+  authentication pre-share
+  group 2
+crypto isakmp key VPNKEY address 203.0.113.2
+
+crypto ipsec transform-set ESP-AES-SHA esp-aes esp-sha-hmac
+crypto map VPN-MAP 10 ipsec-isakmp
+  set peer 203.0.113.2
+  set transform-set ESP-AES-SHA
+  match address 100
